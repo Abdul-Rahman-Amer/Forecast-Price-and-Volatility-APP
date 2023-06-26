@@ -1,0 +1,224 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stock Price Forecast and Historical Data {{ ticker }}</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='static.css') }}">
+    <script src="{{ url_for('static', filename='lightweight.js') }}"></script>
+</head>
+
+<body>
+<div style="overflow-y: scroll; height: 100vh; width: 100%;">
+<div>   
+    <div>
+        <h1 class="title">Price Forecast and Volatility Forecast for {{ ticker }}</h1>
+        <form class="form" method="POST" action="/forecast_historical" onsubmit="showLoadingModal()">
+            <label for="ticker" class="form-label">Enter stock ticker symbol:</label>
+            <input type="text" id="ticker" name="ticker" required class="form-input">
+            <br>
+            <input type="submit" value="Submit" class="form-submit">
+        </form>
+    
+        <div class="loading-modal" id="loadingModal">
+            <div class="loading-spinner"></div>
+            <p style="color: white; margin-top: 10px;">Processing Data</p>
+        </div>
+
+    </div>
+
+    {% if forecast_price %}
+    <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+    <div class="chart-container">
+        <h2 class="forecast-title">Forecasted price for tomorrow ({{ ticker }}):</h2>
+        <p class="forecast-price">${{ forecast_price }}</p>
+        
+        <div class="legend">
+            <h3 class="forecast-price">Model Backtest: </h3>
+
+            <div class="legend-item">
+                <div class="color-box predicted"></div>
+                <div class="text">Predicted Prices</div>
+            </div>
+            <div class="legend-item">
+                <div class="color-box actual"></div>
+                <div class="text">Actual Prices</div>
+            </div>
+        </div>
+        <div id="price-chart"></div>
+    </div>
+
+    <div class="chart-container">
+        <h2 class="forecast-title">Forecasted volatility for tomorrow ({{ ticker }}):</h2>
+        <p class="forecast-volatility">{{ forecasted_volatility }}</p>
+        
+        <div class="legend">
+            <h3 class="forecast-volatility">Model Backtest:</h3>
+            <div class="legend-item">
+                <div class="color-box predicted"></div>
+                <div class="text">Predicted Prices</div>
+            </div>
+            <div class="legend-item">
+                <div class="color-box actual"></div>
+                <div class="text">Actual Prices</div>
+            </div>
+        </div>
+        <div id="volatility-chart"></div>
+    </div>
+    </div>
+
+ 
+
+    <script>
+        var volatilities = JSON.parse('{{ predicted_volatilities }}');
+        var actualVolatilities = JSON.parse('{{ actual_volatilities }}');
+        var prices = JSON.parse('{{ predicted_prices }}');
+        var actualPrices = JSON.parse('{{ actual_prices }}');
+
+        var priceDates = JSON.parse('{{ price_dates|safe }}');
+        var volatilityDates = JSON.parse('{{ volatility_dates|safe }}');
+
+
+
+        console.log("volatilities:", typeof volatilities, volatilities);
+        console.log("actualVolatilities:", typeof actualVolatilities, actualVolatilities);
+        console.log("prices:", typeof prices, prices);
+        console.log("actualPrices:", typeof actualPrices, actualPrices);
+    
+        var volatilityData = volatilities.map(function (value, index) {
+            return { time: volatilityDates[index], value: value };
+        });
+    
+        var actualVolatilityData = actualVolatilities.map(function (value, index) {
+            return { time: volatilityDates[index], value: value };
+        });
+    
+        var priceData = prices.map(function (value, index) {
+            return { time: priceDates[index] , value: value };
+        });
+    
+        var actualPriceData = actualPrices.map(function (value, index) {
+            return { time: priceDates[index], value: value };
+        });
+    
+        var volatilityChart = LightweightCharts.createChart(document.getElementById('volatility-chart'), {
+            width: 800,
+            height: 400,
+            title: 'Actual vs Predicted',
+            layout: {
+                background: { color: '#000000' },
+                backgroundColor: '#ffffff',
+                textColor: '#ffffff',
+            },
+            grid: {
+                vertLines: {
+                    color: 'rgba(197, 203, 206, 0.5)',
+                },
+                horzLines: {
+                    color: 'rgba(197, 203, 206, 0.5)',
+                },
+            },
+            crosshair: {
+                mode: LightweightCharts.CrosshairMode.Normal,
+            },
+            rightPriceScale: {
+                borderColor: 'rgba(197, 203, 206, 0.8)',
+            },
+            timeScale: {
+                borderColor: 'rgba(197, 203, 206, 0.8)',
+            },
+        });
+    
+        var volatilitySeries = volatilityChart.addLineSeries({
+            color: 'red',
+        });
+        volatilitySeries.setData(volatilityData);
+    
+        var actualVolatilitySeries = volatilityChart.addLineSeries({
+            color: '#00f5ed',
+        });
+        actualVolatilitySeries.setData(actualVolatilityData);
+    
+        // Set the visible range for the x-axis
+        var volatilityVisibleRange = { from: 0, to: volatilityData.length };
+        volatilityChart.timeScale().setVisibleRange(volatilityVisibleRange);
+    
+        var priceChart = LightweightCharts.createChart(document.getElementById('price-chart'), {
+            width: 800,
+            height: 400,
+            title: 'Actual vs Predicted',
+            layout: {
+                background: { color: '#000000' },
+                backgroundColor: '#ffffff',
+                textColor: '#ffffff',
+            },
+            grid: {
+                vertLines: {
+                    color: 'rgba(197, 203, 206, 0.5)',
+                },
+                horzLines: {
+                    color: 'rgba(197, 203, 206, 0.5)',
+                },
+            },
+            crosshair: {
+                mode: LightweightCharts.CrosshairMode.Normal,
+            },
+            rightPriceScale: {
+                borderColor: 'rgba(197, 203, 206, 0.8)',
+            },
+            timeScale: {
+                borderColor: 'rgba(197, 203, 206, 0.8)',
+            },
+        });
+    
+        var priceSeries = priceChart.addLineSeries({
+            color: 'red',
+        });
+        priceSeries.setData(priceData);
+    
+        var actualPriceSeries = priceChart.addLineSeries({
+            color: '#00f5ed',
+        });
+        actualPriceSeries.setData(actualPriceData);
+
+
+var priceVisibleRange = {
+  from: priceData[0].time,
+  to: priceData[priceData.length - 1].time
+};
+priceChart.timeScale().setVisibleRange(priceVisibleRange);
+
+var volatilityVisibleRange = {
+  from: volatilityData[0].time,
+  to: volatilityData[volatilityData.length - 1].time
+};
+volatilityChart.timeScale().setVisibleRange(volatilityVisibleRange);
+
+    </script>
+    
+
+    <script>
+        function showLoadingModal() {
+            document.getElementById('loadingModal').style.display = 'flex';
+        }
+    
+        window.addEventListener("load", function () {
+            const loadingModal = document.getElementById('loadingModal');
+            loadingModal.style.display = "none";
+        });
+        </script>
+
+    {% endif %}
+    <script>
+        function showLoadingModal() {
+            document.getElementById('loadingModal').style.display = 'flex';
+        }
+    
+        window.addEventListener("load", function () {
+            const loadingModal = document.getElementById('loadingModal');
+            loadingModal.style.display = "none";
+        });
+    </script>
+</div>
+</div> 
+</body>
+</html>

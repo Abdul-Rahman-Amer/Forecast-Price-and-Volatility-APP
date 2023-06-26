@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Flask App</title>
+    <style>
+        /* Custom CSS classes */
+		body{
+			background-color: black;
+			color: white;
+		}
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .skills-list {
+            list-style-type: none;
+            padding-left: 0;
+            text-align: left;
+        }
+        
+        .skills-list li {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+        
+        .skills-list li:before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #06deff;
+            margin-right: 10px;
+        }
+        
+        .skills-list li:hover:before {
+            background-color: #05eef6;
+        }
+        
+        .skills-list li .description {
+            display: none;
+            position: absolute;
+            top: -20px;
+            left: 100%;
+            padding: 8px;
+            background-color: #00f7ff;
+            color: #000;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+        
+        .skills-list li:hover .description {
+            display: block;
+        }
+        
+        .forecast-button {
+            background-color: #05eaff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>A project to showcase my skills</h1>
+        <p>In this project, I challenged myself to use 
+            all of my acquired skills since I began my journey as 
+            a programmer in something that was simple and had room
+            to improve. Reference readme for how I plan to 
+			epand on this creation. Some of the skills showcased: 
+        </p>
+        <div style="display: flex; justify-content: center;">
+            <ul class="skills-list">
+                <li>
+                    EDA/ETL
+                    <span class="description">Exploratory Data Analysis / Extract, Transform, Load.</span>
+                </li>
+                <li>
+                    UI Development
+                    <span class="description">User Interface Development</span>
+                </li>
+                <li>
+                    API Development and data integrations
+                    <span class="description">Creating APIs and integrating data</span>
+                </li>
+                <li>
+                    Object Oriented Programming
+                    <span class="description">Programming paradigm using objects and classes</span>
+                </li>
+                <li>
+                    Python Programming Language
+                    <span class="description">Python programming language</span>
+                </li>
+                <li>
+                    Data Visualization
+                    <span class="description">Creating visual representations of data</span>
+                </li>
+                <li>
+                    Javascript for graph responsiveness
+                    <span class="description">Using JavaScript for responsive graphs</span>
+                </li>
+                <li>
+                    Development of Neural Networks
+                    <span class="description">Building and training neural networks</span>
+                </li>
+                <li>
+                    Flask Framework
+                    <span class="description">Web framework for Python</span>
+                </li>
+            </ul>
+        </div>
+        <a href="/forecast_historical"><button class="forecast-button">Get Forecasting</button></a>
+    </div>
+</body>
+</html>
